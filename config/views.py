@@ -23,3 +23,7 @@ def emergency_page(request):
 
 def admin_panel(request):
     return render(request, "pages/admin_panel.html")
+
+
+def patient_track(request):
+    return render(request, "pages/patient_track.html")

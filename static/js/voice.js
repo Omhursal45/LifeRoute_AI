@@ -1,4 +1,4 @@
-/* Basic Web Speech API: append transcribed text to symptoms field */
+
 (function () {
   document.getElementById('btnVoice')?.addEventListener('click', () => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;

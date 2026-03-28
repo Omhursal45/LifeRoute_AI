@@ -1,19 +1,15 @@
-"""
-Django settings — development (SQLite) with production-ready PostgreSQL switch.
-"""
 import os
 from pathlib import Path
 from datetime import timedelta
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = os.environ.get(
-    "DJANGO_SECRET_KEY",
-    "django-insecure-dev-only-change-in-production-rt9bh(@21c+x7e)2*%jgtus1",
-)
-DEBUG = os.environ.get("DJANGO_DEBUG", "1") == "1"
+# Secret Key
+SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "fallback-dev-key-for-local-only")
+DEBUG = os.environ.get("DJANGO_DEBUG", "0") == "1"
 ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
 
+# Apps
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
@@ -30,6 +26,7 @@ INSTALLED_APPS = [
     "tracking",
 ]
 
+# Middleware
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -62,17 +59,22 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "config.wsgi.application"
 
-# --- Database: SQLite (dev) | PostgreSQL when POSTGRES_DB is set ---
-_pg = os.environ.get("POSTGRES_DB")
-if _pg:
+# --- DATABASE CONFIG ---
+# Use MySQL if DB_HOST is set, else default to SQLite
+# config/settings.py
+_mysql = os.environ.get("DB_HOST")
+if _mysql:
     DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.postgresql",
-            "NAME": _pg,
-            "USER": os.environ.get("POSTGRES_USER", "postgres"),
-            "PASSWORD": os.environ.get("POSTGRES_PASSWORD", ""),
-            "HOST": os.environ.get("POSTGRES_HOST", "localhost"),
-            "PORT": os.environ.get("POSTGRES_PORT", "5432"),
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': os.getenv("DB_NAME"),
+            'USER': os.getenv("DB_USER"),
+            'PASSWORD': os.getenv("DB_PASSWORD"),
+            'HOST': os.getenv("DB_HOST"),
+            'PORT': os.getenv("DB_PORT", "3306"),
+            'OPTIONS': {
+                'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+            },
         }
     }
 else:
@@ -83,6 +85,7 @@ else:
         }
     }
 
+# Password validation
 AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
     {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
@@ -91,14 +94,10 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 LANGUAGE_CODE = "en"
-LANGUAGES = [
-    ("en", "English"),
-    ("es", "Español"),
-]
+LANGUAGES = [("en", "English"), ("es", "Español")]
 TIME_ZONE = "UTC"
 USE_I18N = True
 USE_TZ = True
-
 LOCALE_PATHS = [BASE_DIR / "locale"]
 
 STATIC_URL = "static/"
@@ -108,6 +107,7 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 AUTH_USER_MODEL = "accounts.User"
 
+# REST Framework
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
@@ -121,14 +121,8 @@ SIMPLE_JWT = {
     "ROTATE_REFRESH_TOKENS": True,
 }
 
-CORS_ALLOWED_ORIGINS = [
-    "http://127.0.0.1:8000",
-    "http://localhost:8000",
-]
+CORS_ALLOWED_ORIGINS = os.environ.get("CORS_ALLOWED_ORIGINS", "http://localhost:3000").split(",")
 CORS_ALLOW_CREDENTIALS = True
 
-# OSRM public demo (OpenStreetMap-based routing; replace in production)
 OSRM_BASE_URL = os.environ.get("OSRM_BASE_URL", "https://router.project-osrm.org")
-
-# Mock SMS log to console / admin
 SMS_MOCK_ENABLED = True

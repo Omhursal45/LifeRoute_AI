@@ -12,13 +12,11 @@ from dataclasses import dataclass
 
 @dataclass
 class SeverityResult:
-    severity_level: int  # 1–5
-    priority_score: float  # higher = more urgent
+    severity_level: isinstance
+    priority_score: float 
     explanation: str
     feature_vector: dict[str, float]
 
-
-# Keyword tiers (case-insensitive)
 CRITICAL_PATTERNS = [
     r"\bcardiac arrest\b",
     r"\bnot breathing\b",
