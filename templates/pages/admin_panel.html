@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% load i18n static %}
+
+{% block title %}{% trans "Admin panel" %} — LifeRoute AI{% endblock %}
+
+{% block content %}
+<h2 class="mb-4">{% trans "Administration" %}</h2>
+<p class="text-muted">{% trans "Use Django Admin for full CRUD. This page shows live analytics for admin JWT users." %}</p>
+<div id="alertAd" class="alert d-none"></div>
+<div class="row g-3">
+  <div class="col-md-4">
+    <div class="card border-0 shadow-sm">
+      <div class="card-body">
+        <h6 class="text-muted">{% trans "Total requests" %}</h6>
+        <p class="display-6 mb-0" id="statTotal">—</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card border-0 shadow-sm">
+      <div class="card-body">
+        <h6 class="text-muted">{% trans "Average severity" %}</h6>
+        <p class="display-6 mb-0" id="statSev">—</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-8">
+    <div class="card border-0 shadow-sm">
+      <div class="card-body">
+        <h6 class="text-muted">{% trans "By status" %}</h6>
+        <pre class="small mb-0" id="statByStatus">{}</pre>
+      </div>
+    </div>
+  </div>
+</div>
+<p class="mt-4"><a class="btn btn-outline-primary" href="/admin/">{% trans "Open Django Admin" %}</a></p>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/admin_panel.js' %}"></script>
+{% endblock %}
