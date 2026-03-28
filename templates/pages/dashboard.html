@@ -1,0 +1,181 @@
+{% extends "base.html" %}
+{% load i18n static %}
+
+{% block title %}{% trans "Dashboard" %} — LifeRoute AI{% endblock %}
+
+{% block extra_head %}
+<style>
+    #mapDashboard { 
+        height: 60vh; 
+        min-height: 450px; 
+        border-radius: 1.25rem; 
+        border: 1px solid rgba(0,0,0,0.05);
+        z-index: 1;
+    }
+
+    .dashboard-header {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 1rem;
+        margin-bottom: 1.5rem;
+        border: 1px solid #edf2f7;
+    }
+
+    .status-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.4rem 0.8rem;
+        border-radius: 50px;
+        font-weight: 600;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+    }
+    .pulse-dot {
+        width: 8px;
+        height: 8px;
+        background-color: #198754;
+        border-radius: 50%;
+        box-shadow: 0 0 0 rgba(25, 135, 84, 0.4);
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+        0% { box-shadow: 0 0 0 0 rgba(25, 135, 84, 0.7); }
+        70% { box-shadow: 0 0 0 10px rgba(25, 135, 84, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(25, 135, 84, 0); }
+    }
+
+    .card {
+        border-radius: 1rem;
+        overflow: hidden;
+    }
+
+    .card-header {
+        border-bottom: 1px solid #f1f3f5 !important;
+        letter-spacing: 0.02em;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+    }
+
+    [data-bs-theme="dark"] .dashboard-header {
+        background: #1a1d23;
+        border-color: #2d3238;
+    }
+    [data-bs-theme="dark"] .card-header {
+        background: #212529 !important;
+        border-color: #2d3238 !important;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-header shadow-sm d-flex flex-wrap justify-content-between align-items-center gap-3">
+    <div>
+        <h2 class="h4 fw-bold mb-1">{% trans "Fleet Operations" %}</h2>
+        <div class="d-flex align-items-center gap-2">
+            <div class="status-pill bg-success-subtle text-success border border-success-subtle">
+                <span class="pulse-dot"></span>
+                <span id="liveStatus">{% trans "System Live" %}</span>
+            </div>
+            <span class="text-muted small">| {% trans "Auto-refresh: 2s" %} · {% trans "Hyderabad facilities only; ranked by your position or ambulance proximity" %}</span>
+        </div>
+    </div>
+
+    <div class="d-flex gap-2">
+        <button type="button" class="btn btn-light border btn-sm fw-medium d-flex align-items-center gap-2" id="btnMyLocation">
+            📍 {% trans "My Location" %}
+        </button>
+        <button type="button" class="btn btn-primary btn-sm fw-medium d-flex align-items-center gap-2 shadow-sm" id="btnSimulate"
+                data-start-label="{% trans 'Simulate Fleet' %}"
+                data-stop-label="{% trans 'Stop fleet' %}">
+            🚑 {% trans "Simulate Fleet" %}
+        </button>
+        <div class="vr mx-1"></div>
+        <span class="badge bg-dark d-flex align-items-center px-3" id="badgeRole" style="border-radius: 8px;"></span>
+    </div>
+</div>
+
+<div id="driverNavPanel" class="card border-primary border-2 shadow-sm mb-4 d-none">
+    <div class="card-header bg-primary text-white py-2 d-flex flex-wrap justify-content-between align-items-center gap-2">
+        <span><strong>{% trans "Driver navigation" %}</strong> — {% trans "Pick a hospital or a map point; we choose the best OSRM alternative for lighter traffic (demo)" %}</span>
+    </div>
+    <div class="card-body">
+        <div class="row g-3 align-items-end">
+            <div class="col-md-4">
+                <label class="form-label small mb-0" for="driverHospitalSelect">{% trans "Hospital" %}</label>
+                <select class="form-select form-select-sm" id="driverHospitalSelect">
+                    <option value="">{% trans "— Select hospital —" %}</option>
+                </select>
+            </div>
+            <div class="col-md-3 d-none" id="driverAmbulanceRow">
+                <label class="form-label small mb-0" for="driverAmbulanceSelect">{% trans "Ambulance" %}</label>
+                <select class="form-select form-select-sm" id="driverAmbulanceSelect"></select>
+            </div>
+            <div class="col-md-auto d-flex flex-wrap gap-2">
+                <button type="button" class="btn btn-primary btn-sm" id="btnDriverNavRoute">{% trans "Route to hospital" %}</button>
+                <button type="button" class="btn btn-outline-secondary btn-sm" id="btnDriverPickMap">{% trans "Pick point on map" %}</button>
+            </div>
+            <div class="col-12 small" id="driverRouteMeta"></div>
+        </div>
+    </div>
+</div>
+
+<div class="position-relative mb-4">
+    <div id="mapDashboard" class="shadow-sm"></div>
+    <div class="position-absolute bottom-0 start-0 m-3 z-3 d-none d-md-block">
+        <div class="glass-panel p-2 px-3 rounded-pill small border bg-white bg-opacity-75 backdrop-blur">
+            <span class="text-dark">🛰️ <strong>OSRM</strong> {% trans "Active Routing" %}</span>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                <span class="fw-bold text-primary">{% trans "Active Ambulances" %}</span>
+                <span class="badge bg-primary-subtle text-primary rounded-pill" id="ambulanceCount">0</span>
+            </div>
+            <div class="card-body p-0">
+                <ul class="list-group list-group-flush" id="listAmbulances">
+                    <li class="list-group-item text-center py-4 text-muted small">
+                        {% trans "Connecting to fleet..." %}
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                <span class="fw-bold text-success">{% trans "Nearest Medical Facilities" %}</span>
+                <span class="badge bg-success-subtle text-success rounded-pill" id="hospitalCount">0</span>
+            </div>
+            <div class="card-body p-0">
+                <ul class="list-group list-group-flush" id="listHospitals">
+                    <li class="list-group-item text-center py-4 text-muted small">
+                        {% trans "Scanning nearby facilities..." %}
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/dashboard.js' %}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const obs = new MutationObserver(() => {
+            document.getElementById('ambulanceCount').innerText = document.querySelectorAll('#listAmbulances li').length;
+            document.getElementById('hospitalCount').innerText = document.querySelectorAll('#listHospitals li').length;
+        });
+        obs.observe(document.getElementById('listAmbulances'), {childList: true});
+        obs.observe(document.getElementById('listHospitals'), {childList: true});
+    });
+</script>
+{% endblock %}
