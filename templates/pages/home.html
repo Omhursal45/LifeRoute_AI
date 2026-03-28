@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Home" %} — LifeRoute AI{% endblock %}
+
+{% block content %}
+<div class="position-relative overflow-hidden">
+  <div class="position-absolute top-0 start-0 translate-middle bg-primary opacity-10 rounded-circle" style="width: 400px; height: 400px; filter: blur(80px);"></div>
+  <div class="position-absolute bottom-0 end-0 translate-middle bg-danger opacity-10 rounded-circle" style="width: 300px; height: 300px; filter: blur(60px);"></div>
+
+  <div class="row align-items-center g-5 py-lg-5 position-relative">
+    <div class="col-lg-6">
+      <div class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill mb-3 fw-semibold">
+        ✨ {% trans "Powered by OSRM & OpenStreetMap" %}
+      </div>
+      <h1 class="display-3 fw-extrabold mb-3 tracking-tight text-gradient" style="background: linear-gradient(45deg, #0d6efd, #00b4d8); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+        {% trans "Faster routes." %}<br>
+        {% trans "Smarter triage." %}
+      </h1>
+      <p class="lead text-secondary mb-4 fs-4">
+        {% trans "LifeRoute combines symptom-based priority scoring and live tracking to suggest the fastest path to the right hospital when every second counts." %}
+      </p>
+      
+      <div class="d-flex flex-wrap gap-3 mt-5">
+        <a class="btn btn-danger btn-lg px-4 py-3 shadow-lg d-flex align-items-center gap-2 border-0" href="{% url 'emergency' %}" style="border-radius: 12px;">
+          <span class="fs-5">🚨</span> {% trans "Request Ambulance" %}
+        </a>
+        <a class="btn btn-outline-dark btn-lg px-4 py-3 d-flex align-items-center gap-2" href="{% url 'dashboard' %}" style="border-radius: 12px; border-width: 2px;">
+          {% trans "Live Dashboard" %}
+        </a>
+      </div>
+      
+      <div class="mt-4 p-3 bg-light rounded-3 border d-inline-block">
+        <p class="small text-muted mb-0">
+          <i class="bi bi-info-circle me-1"></i>
+          <strong>{% trans "Demo Mode:" %}</strong> {% trans "Sign in as Patient or Driver to see live routing." %}
+        </p>
+      </div>
+    </div>
+
+    <div class="col-lg-6">
+      <div class="row g-3">
+        <div class="col-md-6">
+          <div class="card h-100 border-0 shadow-sm transition-hover" style="border-radius: 20px;">
+            <div class="card-body p-4 text-center">
+              <div class="fs-1 mb-2">🧠</div>
+              <h6 class="fw-bold">{% trans "AI Severity" %}</h6>
+              <p class="small text-muted mb-0">{% trans "Instant triage from symptoms & user reports." %}</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="card h-100 border-0 shadow-sm transition-hover" style="border-radius: 20px;">
+            <div class="card-body p-4 text-center">
+              <div class="fs-1 mb-2">📍</div>
+              <h6 class="fw-bold">{% trans "Live ETA" %}</h6>
+              <p class="small text-muted mb-0">{% trans "Real-time OSRM routing with rush-hour logic." %}</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="card h-100 border-0 shadow-sm transition-hover" style="border-radius: 20px;">
+            <div class="card-body p-4 text-center">
+              <div class="fs-1 mb-2">🏥</div>
+              <h6 class="fw-bold">{% trans "Bed Registry" %}</h6>
+              <p class="small text-muted mb-0">{% trans "Hospitals synced with available bed capacity." %}</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="card h-100 border-0 shadow-sm transition-hover" style="border-radius: 20px;">
+            <div class="card-body p-4 text-center">
+              <div class="fs-1 mb-2">🛡️</div>
+              <h6 class="fw-bold">{% trans "Secure Logs" %}</h6>
+              <p class="small text-muted mb-0">{% trans "JWT auth with SMS audit trails & voice triggers." %}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  /* Extra styling for this page only */
+  .fw-extrabold { font-weight: 800; }
+  .tracking-tight { letter-spacing: -0.02em; }
+  
+  .transition-hover {
+    transition: all 0.3s ease;
+  }
+  .transition-hover:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.08) !important;
+  }
+
+  [data-bs-theme="dark"] .card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  }
+  [data-bs-theme="dark"] .bg-light {
+    background-color: #1a1d23 !important;
+    border-color: #2d3238 !important;
+  }
+</style>
+{% endblock %}
