@@ -4,75 +4,88 @@
 {% block title %}{% trans "Home" %} — LifeRoute AI{% endblock %}
 
 {% block content %}
-<div class="position-relative overflow-hidden">
-  <div class="position-absolute top-0 start-0 translate-middle bg-primary opacity-10 rounded-circle" style="width: 400px; height: 400px; filter: blur(80px);"></div>
-  <div class="position-absolute bottom-0 end-0 translate-middle bg-danger opacity-10 rounded-circle" style="width: 300px; height: 300px; filter: blur(60px);"></div>
+<div class="container position-relative">
+  <div class="position-absolute top-0 start-0 translate-middle bg-primary opacity-10 rounded-circle" style="width: 500px; height: 500px; filter: blur(120px); z-index: -1;"></div>
+  <div class="position-absolute top-50 end-0 translate-middle-y bg-info opacity-10 rounded-circle" style="width: 400px; height: 400px; filter: blur(100px); z-index: -1;"></div>
 
-  <div class="row align-items-center g-5 py-lg-5 position-relative">
-    <div class="col-lg-6">
-      <div class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill mb-3 fw-semibold">
-        ✨ {% trans "Powered by OSRM & OpenStreetMap" %}
+  <div class="row align-items-center g-5 py-5">
+    <div class="col-lg-6 animate-fade-in">
+      <div class="d-inline-flex align-items-center gap-2 px-3 py-1 rounded-pill bg-white border shadow-sm mb-4">
+        <span class="badge rounded-pill bg-primary">NEW</span>
+        <span class="small fw-bold text-secondary">{% trans "V2.0 Real-time OSRM Integration" %}</span>
       </div>
-      <h1 class="display-3 fw-extrabold mb-3 tracking-tight text-gradient" style="background: linear-gradient(45deg, #0d6efd, #00b4d8); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
-        {% trans "Faster routes." %}<br>
-        {% trans "Smarter triage." %}
+      
+      <h1 class="display-2 fw-bolder tracking-tighter mb-4">
+        {% trans "Seconds save lives." %}<br>
+        <span class="text-primary text-gradient-indigo">{% trans "AI guides the way." %}</span>
       </h1>
-      <p class="lead text-secondary mb-4 fs-4">
-        {% trans "LifeRoute combines symptom-based priority scoring and live tracking to suggest the fastest path to the right hospital when every second counts." %}
+      
+      <p class="lead text-secondary fs-4 mb-5 opacity-90">
+        {% trans "The world's most advanced emergency logistics engine. We optimize ambulance dispatching with real-time triage and live traffic intelligence." %}
       </p>
       
-      <div class="d-flex flex-wrap gap-3 mt-5">
-        <a class="btn btn-danger btn-lg px-4 py-3 shadow-lg d-flex align-items-center gap-2 border-0" href="{% url 'emergency' %}" style="border-radius: 12px;">
-          <span class="fs-5">🚨</span> {% trans "Request Ambulance" %}
+      <div class="d-flex flex-column flex-sm-row gap-3">
+        <a class="btn btn-danger btn-lg px-5 py-3 rounded-4 shadow-danger-hover d-flex align-items-center justify-content-center gap-2 fw-bold transition-all" href="{% url 'emergency' %}">
+          <i class="bi bi-megaphone-fill"></i> {% trans "Request Ambulance" %}
         </a>
-        <a class="btn btn-outline-dark btn-lg px-4 py-3 d-flex align-items-center gap-2" href="{% url 'dashboard' %}" style="border-radius: 12px; border-width: 2px;">
-          {% trans "Live Dashboard" %}
+        <a class="btn btn-outline-dark btn-lg px-5 py-3 rounded-4 d-flex align-items-center justify-content-center gap-2 fw-bold transition-all" href="{% url 'dashboard' %}">
+          <i class="bi bi-grid-1x2-fill"></i> {% trans "Live Dashboard" %}
         </a>
       </div>
-      
-      <div class="mt-4 p-3 bg-light rounded-3 border d-inline-block">
-        <p class="small text-muted mb-0">
-          <i class="bi bi-info-circle me-1"></i>
-          <strong>{% trans "Demo Mode:" %}</strong> {% trans "Sign in as Patient or Driver to see live routing." %}
-        </p>
+
+      <div class="mt-5 d-flex align-items-center gap-4 text-muted">
+        <div class="d-flex align-items-center gap-2">
+          <i class="bi bi-shield-check text-success fs-4"></i>
+          <span class="small fw-medium">{% trans "HIPAA Compliant" %}</span>
+        </div>
+        <div class="vr"></div>
+        <div class="d-flex align-items-center gap-2">
+          <i class="bi bi-cpu text-primary fs-4"></i>
+          <span class="small fw-medium">{% trans "AI Triage" %}</span>
+        </div>
       </div>
     </div>
 
     <div class="col-lg-6">
-      <div class="row g-3">
-        <div class="col-md-6">
-          <div class="card h-100 border-0 shadow-sm transition-hover" style="border-radius: 20px;">
-            <div class="card-body p-4 text-center">
-              <div class="fs-1 mb-2">🧠</div>
-              <h6 class="fw-bold">{% trans "AI Severity" %}</h6>
-              <p class="small text-muted mb-0">{% trans "Instant triage from symptoms & user reports." %}</p>
+      <div class="bento-grid">
+        <div class="bento-item item-large shadow-sm border bg-white animate-slide-up" style="animation-delay: 0.1s;">
+          <div class="bento-content">
+            <div class="icon-box bg-primary-subtle text-primary mb-3">
+              <i class="bi bi-brain"></i>
             </div>
+            <h5 class="fw-bold">{% trans "Smart Triage AI" %}</h5>
+            <p class="text-muted small">{% trans "Analyzes symptoms in real-time to assign medical priority scores instantly." %}</p>
           </div>
         </div>
-        <div class="col-md-6">
-          <div class="card h-100 border-0 shadow-sm transition-hover" style="border-radius: 20px;">
-            <div class="card-body p-4 text-center">
-              <div class="fs-1 mb-2">📍</div>
-              <h6 class="fw-bold">{% trans "Live ETA" %}</h6>
-              <p class="small text-muted mb-0">{% trans "Real-time OSRM routing with rush-hour logic." %}</p>
+
+        <div class="bento-item item-small shadow-sm border bg-white animate-slide-up" style="animation-delay: 0.2s;">
+          <div class="bento-content">
+            <div class="icon-box bg-success-subtle text-success mb-3">
+              <i class="bi bi-signpost-2"></i>
             </div>
+            <h6 class="fw-bold">{% trans "OSRM Routing" %}</h6>
+            <p class="text-muted extra-small">{% trans "Sub-second pathfinding via OpenStreetMap." %}</p>
           </div>
         </div>
-        <div class="col-md-6">
-          <div class="card h-100 border-0 shadow-sm transition-hover" style="border-radius: 20px;">
-            <div class="card-body p-4 text-center">
-              <div class="fs-1 mb-2">🏥</div>
-              <h6 class="fw-bold">{% trans "Bed Registry" %}</h6>
-              <p class="small text-muted mb-0">{% trans "Hospitals synced with available bed capacity." %}</p>
+
+        <div class="bento-item item-small shadow-sm border bg-white animate-slide-up" style="animation-delay: 0.3s;">
+          <div class="bento-content">
+            <div class="icon-box bg-info-subtle text-info mb-3">
+              <i class="bi bi-hospital"></i>
             </div>
+            <h6 class="fw-bold">{% trans "Bed Sync" %}</h6>
+            <p class="text-muted extra-small">{% trans "Live hospital capacity monitoring." %}</p>
           </div>
         </div>
-        <div class="col-md-6">
-          <div class="card h-100 border-0 shadow-sm transition-hover" style="border-radius: 20px;">
-            <div class="card-body p-4 text-center">
-              <div class="fs-1 mb-2">🛡️</div>
-              <h6 class="fw-bold">{% trans "Secure Logs" %}</h6>
-              <p class="small text-muted mb-0">{% trans "JWT auth with SMS audit trails & voice triggers." %}</p>
+
+        <div class="bento-item item-wide shadow-sm border bg-dark text-white animate-slide-up" style="animation-delay: 0.4s;">
+          <div class="bento-content d-flex align-items-center gap-4">
+            <div class="icon-box bg-white-opacity text-white fs-3">
+              <i class="bi bi-lock-fill"></i>
+            </div>
+            <div>
+              <h6 class="fw-bold mb-1">{% trans "Enterprise Security" %}</h6>
+              <p class="text-white-50 extra-small mb-0">{% trans "JWT Auth, SMS Audit Trails, and end-to-end data encryption." %}</p>
             </div>
           </div>
         </div>
@@ -82,25 +95,69 @@
 </div>
 
 <style>
-  /* Extra styling for this page only */
-  .fw-extrabold { font-weight: 800; }
-  .tracking-tight { letter-spacing: -0.02em; }
-  
-  .transition-hover {
-    transition: all 0.3s ease;
-  }
-  .transition-hover:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 15px 30px rgba(0,0,0,0.08) !important;
+  .tracking-tighter { letter-spacing: -0.04em; }
+  .text-gradient-indigo {
+    background: linear-gradient(135deg, #4f46e5 0%, #06b6d4 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
   }
 
-  [data-bs-theme="dark"] .card {
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  .bento-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(3, auto);
+    gap: 1.25rem;
   }
-  [data-bs-theme="dark"] .bg-light {
-    background-color: #1a1d23 !important;
-    border-color: #2d3238 !important;
+
+  .bento-item {
+    border-radius: 24px;
+    padding: 1.5rem;
+    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+    position: relative;
+    overflow: hidden;
   }
+
+  .bento-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.1) !important;
+  }
+
+  .item-large { grid-row: span 2; }
+  .item-wide { grid-column: span 2; }
+
+  .icon-box {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+  }
+
+  .bg-white-opacity { background: rgba(255,255,255,0.1); }
+  .extra-small { font-size: 0.8rem; }
+
+  .shadow-danger-hover:hover {
+    box-shadow: 0 10px 20px rgba(220, 53, 69, 0.4) !important;
+  }
+
+  [data-bs-theme="dark"] .bento-item {
+    background: #111827 !important;
+    border-color: #374151 !important;
+  }
+  [data-bs-theme="dark"] .bg-light { background: #1f2937 !important; }
+
+  @keyframes revealUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .animate-slide-up { animation: revealUp 0.8s forwards; opacity: 0; }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  .animate-fade-in { animation: fadeIn 1s forwards; }
 </style>
 {% endblock %}
