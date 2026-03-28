@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% load i18n static %}
+
+{% block title %}{% trans "Live ambulance tracking" %} — LifeRoute AI{% endblock %}
+
+{% block extra_head %}
+<style>
+  #mapPatientTrack { height: min(58vh, 520px); min-height: 360px; border-radius: 1rem; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row mb-3">
+  <div class="col-lg-8">
+    <h1 class="h3 fw-bold mb-2">{% trans "Ambulance coming to you" %}</h1>
+    <p class="text-muted mb-0">{% trans "Allow location access. We show your position, the ambulance, the route between you, and how far / ETA." %}</p>
+  </div>
+  <div class="col-lg-4 text-lg-end">
+    <span class="badge bg-secondary" id="trackStatusBadge">{% trans "Connecting…" %}</span>
+  </div>
+</div>
+
+<div id="patientTrackAlert" class="alert alert-warning d-none"></div>
+
+<div class="row g-3 mb-3">
+  <div class="col-md-4">
+    <div class="card border-0 shadow-sm h-100">
+      <div class="card-body">
+        <div class="text-muted small text-uppercase">{% trans "Road distance" %}</div>
+        <div class="fs-3 fw-bold text-primary" id="statRouteKm">—</div>
+        <div class="small text-muted">{% trans "Remaining to you (OSRM)" %}</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card border-0 shadow-sm h-100">
+      <div class="card-body">
+        <div class="text-muted small text-uppercase">{% trans "Straight-line" %}</div>
+        <div class="fs-3 fw-bold" id="statLineKm">—</div>
+        <div class="small text-muted">{% trans "As the crow flies" %}</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card border-0 shadow-sm h-100">
+      <div class="card-body">
+        <div class="text-muted small text-uppercase">{% trans "ETA" %}</div>
+        <div class="fs-3 fw-bold text-success" id="statEta">—</div>
+        <div class="small text-muted" id="statClosing">{% trans "Updates every few seconds" %}</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="position-relative shadow rounded overflow-hidden mb-4" style="border: 1px solid var(--bs-border-color-translucent);">
+  <div id="mapPatientTrack"></div>
+</div>
+
+<p class="small text-muted">
+  {% trans "Blue: your GPS. Red: ambulance. Blue line: driving route (when OSRM is available)." %}
+</p>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/patient-track.js' %}"></script>
+{% endblock %}
