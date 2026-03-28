@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Secure Login" %} — LifeRoute AI{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center align-items-center min-vh-75 animate-fade-in">
+  <div class="col-md-5 col-lg-4">
+    
+    <div class="text-center mb-4">
+      <div class="d-inline-flex align-items-center justify-content-center bg-primary bg-opacity-10 rounded-circle mb-3" style="width: 64px; height: 64px;">
+        <i class="bi bi-shield-lock-fill text-primary fs-2"></i>
+      </div>
+      <h2 class="fw-bolder tracking-tight">{% trans "Welcome back" %}</h2>
+      <p class="text-secondary small">{% trans "Enter your credentials to access the terminal." %}</p>
+    </div>
+
+    <div id="alertLogin" class="alert border-0 shadow-sm d-none animate-shake" role="alert" style="border-radius: 12px;"></div>
+
+    <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+      <div class="card-body p-4 p-md-5">
+        <form id="formLogin">
+          
+          <div class="mb-3">
+            <label class="form-label fw-semibold small text-secondary" for="username">{% trans "Username" %}</label>
+            <div class="input-group">
+              <span class="input-group-text bg-light border-end-0"><i class="bi bi-person text-muted"></i></span>
+              <input type="text" class="form-control bg-light border-start-0 ps-0" id="username" 
+                     placeholder="e.g. jdoe_paramedic" required autocomplete="username">
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <div class="d-flex justify-content-between">
+                <label class="form-label fw-semibold small text-secondary" for="password">{% trans "Password" %}</label>
+                <a href="#" class="small text-decoration-none">{% trans "Forgot?" %}</a>
+            </div>
+            <div class="input-group">
+              <span class="input-group-text bg-light border-end-0"><i class="bi bi-key text-muted"></i></span>
+              <input type="password" class="form-control bg-light border-start-0 ps-0" id="password" 
+                     placeholder="••••••••" required autocomplete="current-password">
+            </div>
+          </div>
+
+          <button type="submit" id="btnLoginSubmit" class="btn btn-primary btn-lg w-100 fw-bold rounded-3 shadow-sm transition-all">
+            <span id="btnText">{% trans "Sign in" %}</span>
+            <span id="btnLoader" class="spinner-border spinner-border-sm d-none" role="status"></span>
+          </button>
+        </form>
+
+        <div class="text-center mt-4">
+          <p class="small text-muted mb-0">
+            {% trans "New to LifeRoute?" %} 
+            <a href="{% url 'register' %}" class="fw-bold text-decoration-none">{% trans "Create an account" %}</a>
+          </p>
+        </div>
+      </div>
+      
+      <div class="card-footer bg-light border-0 py-3 text-center">
+        <span class="text-muted extra-small">
+          <i class="bi bi-lock-fill me-1"></i> {% trans "Encrypted AES-256 Connection" %}
+        </span>
+      </div>
+    </div>
+
+    <div class="text-center mt-4">
+        <a href="{% url 'home' %}" class="btn btn-link btn-sm text-secondary text-decoration-none">
+            <i class="bi bi-arrow-left me-1"></i> {% trans "Back to home" %}
+        </a>
+    </div>
+  </div>
+</div>
+
+<style>
+  .min-vh-75 { min-height: 75vh; }
+  .extra-small { font-size: 0.75rem; }
+  .tracking-tight { letter-spacing: -0.02em; }
+
+  .form-control:focus {
+    box-shadow: none;
+    background-color: #fff !important;
+    border-color: var(--brand-primary);
+  }
+  .input-group-text { border-color: rgba(0,0,0,0.05); }
+
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+  }
+  .animate-shake { animation: shake 0.2s ease-in-out 0s 2; }
+
+  [data-bs-theme="dark"] .bg-light {
+    background-color: #1e293b !important;
+    border-color: #334155 !important;
+  }
+  [data-bs-theme="dark"] .input-group-text {
+    background-color: #1e293b !important;
+    border-color: #334155 !important;
+  }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById('formLogin').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  
+  const box = document.getElementById('alertLogin');
+  const btn = document.getElementById('btnLoginSubmit');
+  const btnText = document.getElementById('btnText');
+  const btnLoader = document.getElementById('btnLoader');
+  
+  box.classList.add('d-none');
+  btn.disabled = true;
+  btnText.classList.add('d-none');
+  btnLoader.classList.remove('d-none');
+
+  const u = document.getElementById('username').value;
+  const p = document.getElementById('password').value;
+
+  try {
+    await LRAuth.login(u, p);
+    
+    box.className = 'alert alert-success d-flex align-items-center gap-2';
+    box.innerHTML = `<i class="bi bi-check-circle-fill"></i> {% trans "Authenticated. Redirecting..." %}`;
+    box.classList.remove('d-none');
+    
+    setTimeout(() => { window.location.href = '{% url "dashboard" %}'; }, 600);
+  } catch (err) {
+    btn.disabled = false;
+    btnText.classList.remove('d-none');
+    btnLoader.classList.add('d-none');
+    
+    box.className = 'alert alert-danger d-flex align-items-center gap-2 animate-shake';
+    box.innerHTML = `<i class="bi bi-exclamation-triangle-fill"></i> ${err.message || '{% trans "Invalid username or password" %}'}`;
+    box.classList.remove('d-none');
+  }
+});
+</script>
+{% endblock %}
