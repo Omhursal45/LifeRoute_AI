@@ -1,0 +1,206 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Create Account" %} — LifeRoute AI{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center align-items-center animate-fade-in">
+  <div class="col-lg-8 col-xl-7">
+    
+    <div class="text-center mb-5">
+      <h2 class="fw-bolder tracking-tight display-6">{% trans "Join the Network" %}</h2>
+      <p class="text-secondary">{% trans "Select your role to get started with AI-driven dispatching." %}</p>
+    </div>
+
+    <div id="alertReg" class="alert border-0 shadow-sm d-none animate-shake mb-4" role="alert" style="border-radius: 12px;"></div>
+
+    <form id="formReg">
+      <div class="row g-4">
+        
+        <div class="col-12 mb-2">
+          <label class="form-label fw-bold small text-uppercase tracking-wider text-muted mb-3">{% trans "I am a..." %}</label>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <input type="radio" class="btn-check" name="role" id="role_patient" value="patient" checked autocomplete="off">
+              <label class="btn btn-outline-primary w-100 p-4 rounded-4 shadow-sm role-card" for="role_patient">
+                <i class="bi bi-person-heart fs-1 mb-2 d-block"></i>
+                <span class="fw-bold d-block">{% trans "Patient / Requester" %}</span>
+                <span class="small opacity-75">{% trans "Request emergency transport" %}</span>
+              </label>
+            </div>
+            <div class="col-md-6">
+              <input type="radio" class="btn-check" name="role" id="role_driver" value="driver" autocomplete="off">
+              <label class="btn btn-outline-primary w-100 p-4 rounded-4 shadow-sm role-card" for="role_driver">
+                <i class="bi bi-truck fs-1 mb-2 d-block"></i>
+                <span class="fw-bold d-block">{% trans "Ambulance Driver" %}</span>
+                <span class="small opacity-75">{% trans "Respond to emergency routes" %}</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12">
+          <div class="card border-0 shadow-lg rounded-4">
+            <div class="card-body p-4 p-md-5">
+              <div class="row g-4">
+                <div class="col-md-6">
+                  <label class="form-label fw-semibold small text-secondary" for="username">{% trans "Username" %}</label>
+                  <div class="input-group">
+                    <span class="input-group-text bg-light border-end-0"><i class="bi bi-at text-muted"></i></span>
+                    <input type="text" class="form-control bg-light border-start-0 ps-0" id="username" placeholder="johndoe" required>
+                  </div>
+                </div>
+                
+                <div class="col-md-6">
+                  <label class="form-label fw-semibold small text-secondary" for="email">{% trans "Email Address" %}</label>
+                  <div class="input-group">
+                    <span class="input-group-text bg-light border-end-0"><i class="bi bi-envelope text-muted"></i></span>
+                    <input type="email" class="form-control bg-light border-start-0 ps-0" id="email" placeholder="name@example.com" required>
+                  </div>
+                </div>
+
+                <div class="col-md-12">
+                  <label class="form-label fw-semibold small text-secondary" for="phone">{% trans "Phone Number" %}</label>
+                  <div class="input-group">
+                    <span class="input-group-text bg-light border-end-0"><i class="bi bi-phone text-muted"></i></span>
+                    <input type="text" class="form-control bg-light border-start-0 ps-0" id="phone" placeholder="+1 (555) 000-0000">
+                  </div>
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label fw-semibold small text-secondary" for="password">{% trans "Password" %}</label>
+                  <div class="input-group">
+                    <span class="input-group-text bg-light border-end-0"><i class="bi bi-shield-lock text-muted"></i></span>
+                    <input type="password" class="form-control bg-light border-start-0 ps-0" id="password" placeholder="••••••••" minlength="8" required>
+                  </div>
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label fw-semibold small text-secondary" for="password2">{% trans "Confirm Password" %}</label>
+                  <div class="input-group">
+                    <span class="input-group-text bg-light border-end-0"><i class="bi bi-check-all text-muted"></i></span>
+                    <input type="password" class="form-control bg-light border-start-0 ps-0" id="password2" placeholder="••••••••" minlength="8" required>
+                  </div>
+                </div>
+              </div>
+
+              <button type="submit" id="btnRegSubmit" class="btn btn-primary btn-lg w-100 fw-bold rounded-3 shadow-sm mt-5 transition-all">
+                <span id="btnText">{% trans "Create Secure Account" %}</span>
+                <span id="btnLoader" class="spinner-border spinner-border-sm d-none" role="status"></span>
+              </button>
+
+              <div class="text-center mt-4">
+                <p class="small text-muted mb-0">
+                  {% trans "Already have an account?" %} 
+                  <a href="{% url 'login' %}" class="fw-bold text-decoration-none">{% trans "Sign in instead" %}</a>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<style>
+  .role-card {
+    border: 2px solid rgba(0,0,0,0.05);
+    background: white;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .btn-check:checked + .role-card {
+    background: var(--brand-primary);
+    color: white !important;
+    border-color: var(--brand-primary);
+    transform: translateY(-4px);
+    box-shadow: 0 10px 20px rgba(79, 70, 229, 0.2) !important;
+  }
+  
+  .btn-check:checked + .role-card .text-muted,
+  .btn-check:checked + .role-card .opacity-75 {
+    color: rgba(255,255,255,0.8) !important;
+  }
+
+  .form-control:focus {
+    background-color: #fff !important;
+    box-shadow: none;
+    border-color: var(--brand-primary);
+  }
+
+  [data-bs-theme="dark"] .role-card {
+    background: #111827;
+    border-color: #374151;
+    color: #f1f5f9;
+  }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById('formReg').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  
+  const box = document.getElementById('alertReg');
+  const btn = document.getElementById('btnRegSubmit');
+  const btnText = document.getElementById('btnText');
+  const btnLoader = document.getElementById('btnLoader');
+  
+  const password = document.getElementById('password').value;
+  const passwordConfirm = document.getElementById('password2').value;
+
+  if (password !== passwordConfirm) {
+    box.className = 'alert alert-warning d-flex align-items-center gap-2 animate-shake';
+    box.innerHTML = `<i class="bi bi-exclamation-triangle"></i> {% trans "Passwords do not match." %}`;
+    box.classList.remove('d-none');
+    return;
+  }
+
+  box.classList.add('d-none');
+  btn.disabled = true;
+  btnText.classList.add('d-none');
+  btnLoader.classList.remove('d-none');
+
+  const body = {
+    username: document.getElementById('username').value,
+    email: document.getElementById('email').value,
+    phone: document.getElementById('phone').value,
+    role: document.querySelector('input[name="role"]:checked').value,
+    password: password,
+    password_confirm: passwordConfirm,
+  };
+
+  try {
+    const res = await fetch('/api/auth/register/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    
+    const data = await res.json().catch(() => ({}));
+    
+    if (!res.ok) {
+      const msg = Object.values(data).flat().join(' ') || res.statusText;
+      throw new Error(msg);
+    }
+    await LRAuth.login(body.username, password);
+    
+    box.className = 'alert alert-success d-flex align-items-center gap-2';
+    box.innerHTML = `<i class="bi bi-check-circle-fill"></i> {% trans "Account verified. Welcome to LifeRoute AI!" %}`;
+    box.classList.remove('d-none');
+    
+    setTimeout(() => { window.location.href = '{% url "dashboard" %}'; }, 800);
+    
+  } catch (err) {
+    btn.disabled = false;
+    btnText.classList.remove('d-none');
+    btnLoader.classList.add('d-none');
+    
+    box.className = 'alert alert-danger d-flex align-items-center gap-2 animate-shake';
+    box.innerHTML = `<i class="bi bi-shield-exclamation"></i> ${err.message}`;
+    box.classList.remove('d-none');
+  }
+});
+</script>
+{% endblock %}
