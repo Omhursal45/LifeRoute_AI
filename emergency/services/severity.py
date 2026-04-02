@@ -12,8 +12,8 @@ from dataclasses import dataclass
 
 @dataclass
 class SeverityResult:
-    severity_level: isinstance
-    priority_score: float 
+    severity_level: int 
+    priority_score: float  
     explanation: str
     feature_vector: dict[str, float]
 
