@@ -1,3 +1,7 @@
+/**
+ * India map + real-time ambulance positions (poll) + smooth marker motion.
+ * Geolocation: centers map on your position when allowed.
+ */
 (function () {
   const INDIA_CENTER = [20.5937, 78.9629];
   const HYDERABAD_DEFAULT = [17.385, 78.4867];
@@ -12,6 +16,8 @@
 
   const POLL_MS = 2000;
   const SESSION_ANCHOR_KEY = 'lr_fleet_anchored';
+
+  /** Local loop used by fleet simulation; rebuilt when demo is anchored to GPS. */
   let simPath = buildSimPath(HYDERABAD_DEFAULT[0], HYDERABAD_DEFAULT[1]);
 
   function buildSimPath(centerLat, centerLng) {
