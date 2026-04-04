@@ -1,4 +1,3 @@
-
 (function () {
   document.getElementById('btnVoice')?.addEventListener('click', () => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
