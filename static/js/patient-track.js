@@ -1,4 +1,3 @@
-
 (function () {
   const HYDERABAD = [17.385, 78.4867];
   let map;
@@ -101,6 +100,7 @@
     try {
       map.fitBounds(group.getBounds(), { padding: [50, 50], maxZoom: 15 });
     } catch (e) {
+      /* ignore */
     }
   }
 
