@@ -38,6 +38,7 @@ const LRAuth = {
         sessionStorage.setItem('lr_me', JSON.stringify({ role: u.role, username: u.username }));
       }
     } catch (e) {
+      /* ignore */
     }
     return data;
   },
@@ -74,6 +75,7 @@ const LRAuth = {
         headers.Authorization = `Bearer ${this.getAccess()}`;
         res = await fetch(url, { ...options, headers });
       } catch (_) {
+        /* cleared */
       }
     }
     return res;
