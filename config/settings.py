@@ -63,14 +63,15 @@ TEMPLATES = [
 WSGI_APPLICATION = "config.wsgi.application"
 
 # --- Database: SQLite (dev) | PostgreSQL when POSTGRES_DB is set ---
+import os
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": "liferoute",
-        "USER": "op838",
-        "PASSWORD": "Omyy@123",
-        "HOST": "127.0.0.1",
-        "PORT": "5432",
+        "NAME": os.environ.get("POSTGRES_DB", "liferoute"),
+        "USER": os.environ.get("POSTGRES_USER", "op838"),
+        "PASSWORD": os.environ.get("POSTGRES_PASSWORD", "Omyy@123"),
+        "HOST": os.environ.get("POSTGRES_HOST", "127.0.0.1"),
+        "PORT": os.environ.get("POSTGRES_PORT", "5432"),
     }
 }
 AUTH_PASSWORD_VALIDATORS = [
