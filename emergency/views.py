@@ -282,7 +282,7 @@ class PatientLiveTrackingView(APIView):
             "distance_route_km": None,
             "eta_seconds": None,
             "eta_seconds_raw": None,
-            "traffic_factor": round(tf, 2),
+            "traffic_factor": round(tf, 3),
             "route_geometry": None,
             "routing_available": False,
         }
