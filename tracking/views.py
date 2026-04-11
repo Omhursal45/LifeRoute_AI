@@ -28,7 +28,7 @@ class AmbulanceLocationUpdateView(APIView):
         try:
             amb = Ambulance.objects.get(pk=pk)
         except Ambulance.DoesNotExist:
-            return Response({"detail": "Not found."}, status=404)
+            return Response({"detail": "Not Found."}, status=404)
 
         u = request.user
         role = getattr(u, "role", None)
