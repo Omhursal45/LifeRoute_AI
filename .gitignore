@@ -1,12 +1,15 @@
-venv/
-.venv/
-__pycache__/
-*.py[cod]
-*.sqlite3
-db.sqlite3
-staticfiles/
-.env
-*.mo
-.idea/
-.vscode/
-*.log
+# Python build files
+build/
+dist/
+*.egg-info/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Coverage / testing
+.coverage
+htmlcov/
+
+# Gunicorn / runtime
+*.pid
