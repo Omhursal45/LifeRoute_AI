@@ -19,7 +19,6 @@
         if (passwordInput) passwordInput.focus();
       }
     } catch (e) {
-      /* ignore malformed query string */
     }
 
     form.addEventListener('submit', async (e) => {
