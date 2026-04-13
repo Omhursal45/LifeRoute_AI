@@ -12,8 +12,15 @@ SECRET_KEY = os.environ.get(
     "django-insecure-dev-only-change-in-production-rt9bh(@21c+x7e)2*%jgtus1",
 )
 DEBUG = os.environ.get("DJANGO_DEBUG", "1") == "1"
-ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
+CSRF_TRUSTED_ORIGINS = [
+    "https://liferouteai-production.up.railway.app"
+]
 
+ALLOWED_HOSTS = [
+    "liferouteai-production.up.railway.app",
+    "localhost",
+    "127.0.0.1"
+]
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
