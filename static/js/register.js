@@ -56,11 +56,11 @@
           throw new Error(msg);
         }
 
-        await LRAuth.login(body.username, password);
-        showBox(box, 'success', 'Account created successfully. Redirecting...');
+        showBox(box, 'success', 'Account created successfully. Please sign in.');
         window.setTimeout(() => {
-          window.location.href = '/dashboard/';
-        }, 700);
+          const nextUrl = '/login/?username=' + encodeURIComponent(body.username);
+          window.location.href = nextUrl;
+        }, 900);
       } catch (err) {
         btn.disabled = false;
         btnText.classList.remove('d-none');
