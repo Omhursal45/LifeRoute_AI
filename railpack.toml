@@ -1,0 +1,9 @@
+[build]
+# DJANGO_SECRET_KEY is a runtime-only variable and must not be required
+# during the build phase. A dummy value is provided here so that Django
+# commands run during the build (e.g. collectstatic) can initialise
+# without the real secret, which is only injected at runtime.
+[build.environment]
+DJANGO_SECRET_KEY = "railpack-build-placeholder-not-used-at-runtime"
+DJANGO_DEBUG = "0"
+DJANGO_ALLOWED_HOSTS = "*"
