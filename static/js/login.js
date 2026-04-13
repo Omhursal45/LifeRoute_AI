@@ -8,6 +8,19 @@
   document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('formLogin');
     if (!form) return;
+    const usernameInput = document.getElementById('username');
+    const passwordInput = document.getElementById('password');
+
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const u = params.get('username');
+      if (u && usernameInput) {
+        usernameInput.value = u;
+        if (passwordInput) passwordInput.focus();
+      }
+    } catch (e) {
+      /* ignore malformed query string */
+    }
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -16,8 +29,8 @@
       const btn = document.getElementById('btnLoginSubmit');
       const btnText = document.getElementById('btnText');
       const btnLoader = document.getElementById('btnLoader');
-      const username = document.getElementById('username').value.trim();
-      const password = document.getElementById('password').value;
+      const username = usernameInput.value.trim();
+      const password = passwordInput.value;
 
       box.classList.add('d-none');
       btn.disabled = true;
