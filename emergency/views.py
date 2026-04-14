@@ -288,7 +288,7 @@ class PatientLiveTrackingView(APIView):
         }
 
         if route:
-            payload["distance_route_km"] = round(route["distance_km"], 3)
+            payload["distance_route_km"] = round(route["distance_km"], 2)
             payload["eta_seconds_raw"] = route["duration_sec"]
             payload["eta_seconds"] = int(route["duration_sec"] * tf)
             payload["route_geometry"] = route.get("geometry")
