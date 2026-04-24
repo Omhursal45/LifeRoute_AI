@@ -316,7 +316,7 @@ class DemoAnchorNearMeView(APIView):
                 **stats,
                 "anchor_latitude": lat,
                 "anchor_longitude": lng,
-                "detail": "Hospitals and ambulances moved near your coordinates.",
+                "detail": "Hospitals and ambulances moved near your coordinates..",
             }
         )
 
