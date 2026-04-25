@@ -10,7 +10,7 @@
     rec.interimResults = false;
     rec.maxAlternatives = 1;
     rec.onresult = (ev) => {
-      const text = ev.results[0][0].transcript;
+      const text = ev.results[1][0].transcript;
       const ta = document.getElementById('symptoms');
       if (ta) {
         ta.value = (ta.value ? `${ta.value.trim()} ` : '') + text;
