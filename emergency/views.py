@@ -327,7 +327,7 @@ class AnalyticsView(APIView):
     def get(self, request):
         qs = EmergencyRequest.objects.all()
         by_status = dict(qs.values("status").annotate(c=Count("id")).values_list("status", "c"))
-        avg_sev = qs.aggregate(v=Avg("severity_level"))["v"] or 1
+        avg_sev = qs.aggregate(v=Avg("severity_level"))["v"] or 0
         total = qs.count()
         return Response(
             {
