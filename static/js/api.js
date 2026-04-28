@@ -82,13 +82,37 @@ const LRAuth = {
 
 document.addEventListener('DOMContentLoaded', () => {
   const loginLink = document.getElementById('navLogin');
+  const joinLink = document.getElementById('navJoin');
+  const adminItem = document.getElementById('navItemAdmin');
+
   if (loginLink && LRAuth.getAccess()) {
     loginLink.textContent = 'Logout';
     loginLink.href = '#';
     loginLink.addEventListener('click', (e) => {
       e.preventDefault();
       LRAuth.clear();
+      sessionStorage.removeItem('lr_me');
       window.location.href = '/';
     });
+    if (joinLink) joinLink.classList.add('d-none');
+
+    LRAuth.fetchAuth('/api/auth/me/')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((u) => {
+        if (!u) return;
+        sessionStorage.setItem(
+          'lr_me',
+          JSON.stringify({
+            role: u.role,
+            username: u.username,
+            is_staff: !!u.is_staff,
+            is_superuser: !!u.is_superuser,
+          }),
+        );
+        if (adminItem && (u.is_staff || u.is_superuser)) {
+          adminItem.classList.remove('d-none');
+        }
+      })
+      .catch(() => {});
   }
 });
