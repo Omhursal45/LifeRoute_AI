@@ -28,7 +28,7 @@
       [centerLat + d * 0.55, centerLng + d * 0.25],
       [centerLat + d * 0.85, centerLng + d * 0.55],
       [centerLat + d * 0.45, centerLng + d * 0.9],
-      [centerLat + d * 0.15, centerLng + d * 0.64],
+      [centerLat + d * 0.15, centerLng + d * 0.65],
       [centerLat, centerLng],
     ];
   }
