@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load i18n %}
+{% load i18n static %}
 
 {% block title %}{% trans "Create Account" %} — LifeRoute AI{% endblock %}
 
@@ -138,69 +138,5 @@
 {% endblock %}
 
 {% block extra_js %}
-<script>
-document.getElementById('formReg').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  
-  const box = document.getElementById('alertReg');
-  const btn = document.getElementById('btnRegSubmit');
-  const btnText = document.getElementById('btnText');
-  const btnLoader = document.getElementById('btnLoader');
-  
-  const password = document.getElementById('password').value;
-  const passwordConfirm = document.getElementById('password2').value;
-
-  if (password !== passwordConfirm) {
-    box.className = 'alert alert-warning d-flex align-items-center gap-2 animate-shake';
-    box.innerHTML = `<i class="bi bi-exclamation-triangle"></i> {% trans "Passwords do not match." %}`;
-    box.classList.remove('d-none');
-    return;
-  }
-
-  box.classList.add('d-none');
-  btn.disabled = true;
-  btnText.classList.add('d-none');
-  btnLoader.classList.remove('d-none');
-
-  const body = {
-    username: document.getElementById('username').value,
-    email: document.getElementById('email').value,
-    phone: document.getElementById('phone').value,
-    role: document.querySelector('input[name="role"]:checked').value,
-    password: password,
-    password_confirm: passwordConfirm,
-  };
-
-  try {
-    const res = await fetch('/api/auth/register/', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
-    });
-    
-    const data = await res.json().catch(() => ({}));
-    
-    if (!res.ok) {
-      const msg = Object.values(data).flat().join(' ') || res.statusText;
-      throw new Error(msg);
-    }
-    await LRAuth.login(body.username, password);
-    
-    box.className = 'alert alert-success d-flex align-items-center gap-2';
-    box.innerHTML = `<i class="bi bi-check-circle-fill"></i> {% trans "Account verified. Welcome to LifeRoute AI!" %}`;
-    box.classList.remove('d-none');
-    
-    setTimeout(() => { window.location.href = '{% url "dashboard" %}'; }, 800);
-    
-  } catch (err) {
-    btn.disabled = false;
-    btnText.classList.remove('d-none');
-    btnLoader.classList.add('d-none');
-    
-    box.className = 'alert alert-danger d-flex align-items-center gap-2 animate-shake';
-    box.innerHTML = `<i class="bi bi-shield-exclamation"></i> ${err.message}`;
-    box.classList.remove('d-none');
-  }
-});
-</script>
+<script src="{% static 'js/register.js' %}"></script>
 {% endblock %}
