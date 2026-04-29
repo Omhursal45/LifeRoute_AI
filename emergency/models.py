@@ -13,6 +13,11 @@ class EmergencyStatus(models.TextChoices):
     CANCELLED = "cancelled", "Cancelled"
 
 
+class EmergencyType(models.TextChoices):
+    MANUAL = "manual", "Manual"
+    SOS = "sos", "SOS"
+
+
 class EmergencyRequest(models.Model):
     patient = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -23,6 +28,11 @@ class EmergencyRequest(models.Model):
     longitude = models.FloatField()
     location_description = models.CharField(max_length=500, blank=True)
     symptoms = models.TextField()
+    emergency_type = models.CharField(
+        max_length=20,
+        choices=EmergencyType.choices,
+        default=EmergencyType.MANUAL,
+    )
     severity_level = models.PositiveSmallIntegerField(help_text="1 (low) – 5 (critical)")
     priority_score = models.FloatField(default=0.0)
     severity_explanation = models.TextField(blank=True)
