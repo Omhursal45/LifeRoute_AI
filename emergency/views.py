@@ -1,3 +1,7 @@
+import json
+
+from django.contrib.auth import get_user_model
+from django.db import transaction
 from django.db.models import Avg, Count, Q
 from django.shortcuts import get_object_or_404
 from rest_framework import generics, permissions
@@ -10,7 +14,7 @@ from hospitals.models import Hospital
 from hospitals.serializers import HospitalSerializer
 from tracking.models import Ambulance
 
-from .models import EmergencyRequest, EmergencyStatus
+from .models import EmergencyRequest, EmergencyStatus, EmergencyType
 from .serializers import (
     DemoAnchorSerializer,
     DriverNavigateSerializer,
@@ -21,9 +25,14 @@ from .services import (
     anchor_demo_fleet_near,
     fetch_osrm_route,
     haversine_km,
+    nearest_hospitals,
+    pick_best_hospital_route,
     mock_traffic_duration_factor,
     plan_driver_route_low_traffic,
 )
+from .sms_mock import send_mock_sms
+
+User = get_user_model()
 
 
 class EmergencyRequestListCreateView(generics.ListCreateAPIView):
@@ -295,6 +304,156 @@ class PatientLiveTrackingView(APIView):
             payload["routing_available"] = True
 
         return Response(payload)
+
+
+class SOSOneTapView(APIView):
+    """
+    One-tap SOS:
+    - patient sends only location
+    - server auto-creates SOS request at HIGH severity
+    - assigns nearest available ambulance atomically
+    - simulates notifications to driver + admins
+    """
+
+    permission_classes = [permissions.IsAuthenticated]
+
+    @transaction.atomic
+    def post(self, request):
+        try:
+            lat = float(request.data.get("latitude"))
+            lng = float(request.data.get("longitude"))
+        except (TypeError, ValueError):
+            return Response({"detail": "latitude and longitude are required numbers."}, status=400)
+
+        # Idempotency guard: prevent accidental double-tap storms for same patient.
+        recent_open = EmergencyRequest.objects.filter(
+            patient=request.user,
+            emergency_type=EmergencyType.SOS,
+            status__in=[EmergencyStatus.PENDING, EmergencyStatus.ASSIGNED, EmergencyStatus.EN_ROUTE],
+        ).order_by("-created_at")
+        if recent_open.exists():
+            existing = recent_open.first()
+            return Response(
+                {
+                    "detail": "An active SOS request already exists for this patient.",
+                    "request_id": existing.id,
+                    "status": existing.status,
+                },
+                status=409,
+            )
+
+        # Avoid conflicts under multiple simultaneous SOS requests by locking ambulances.
+        open_assigned_amb_ids = EmergencyRequest.objects.filter(
+            status__in=[EmergencyStatus.ASSIGNED, EmergencyStatus.EN_ROUTE],
+            assigned_ambulance__isnull=False,
+        ).values_list("assigned_ambulance_id", flat=True)
+
+        candidates = (
+            Ambulance.objects.select_for_update()
+            .filter(is_active=True, status="available")
+            .exclude(id__in=open_assigned_amb_ids)
+        )
+        if not candidates.exists():
+            return Response(
+                {"detail": "No ambulances currently available. Please hold; dispatch will retry."},
+                status=503,
+            )
+
+        nearest = None
+        nearest_km = float("inf")
+        for amb in candidates:
+            d = haversine_km(lat, lng, amb.current_latitude, amb.current_longitude)
+            if d < nearest_km:
+                nearest = amb
+                nearest_km = d
+
+        if nearest is None:
+            return Response(
+                {"detail": "No ambulances currently available. Please hold; dispatch will retry."},
+                status=503,
+            )
+
+        hosp_candidates = nearest_hospitals(lat, lng, limit=8, consider_ambulances=False)
+        best_hospital_route = pick_best_hospital_route(lat, lng, hosp_candidates)
+
+        route_to_patient = fetch_osrm_route(nearest.current_latitude, nearest.current_longitude, lat, lng)
+        tf = mock_traffic_duration_factor()
+
+        req = EmergencyRequest.objects.create(
+            patient=request.user,
+            latitude=lat,
+            longitude=lng,
+            location_description="One-tap SOS",
+            symptoms="SOS panic trigger",
+            emergency_type=EmergencyType.SOS,
+            severity_level=4,  # HIGH
+            priority_score=95.0,
+            severity_explanation="One-tap SOS classified as HIGH priority by policy.",
+            predicted_by_ai=False,
+            status=EmergencyStatus.ASSIGNED,
+            assigned_ambulance=nearest,
+            suggested_hospital=best_hospital_route["hospital"] if best_hospital_route else None,
+            route_distance_km=best_hospital_route["distance_km"] if best_hospital_route else None,
+            route_duration_sec=best_hospital_route["duration_sec"] if best_hospital_route else None,
+            route_geometry_json=json.dumps(best_hospital_route["geometry"])
+            if best_hospital_route and best_hospital_route.get("geometry")
+            else "",
+            traffic_factor_applied=best_hospital_route["traffic_factor"] if best_hospital_route else 1.0,
+        )
+
+        nearest.status = "assigned"
+        nearest.save(update_fields=["status", "last_updated"])
+
+        # Simulated notifications: assigned driver + admins + patient
+        if request.user.phone:
+            send_mock_sms(
+                request.user.phone,
+                f"SOS #{req.id} received. Ambulance {nearest.vehicle_code} has been assigned.",
+                related_request=req,
+            )
+        if nearest.driver and nearest.driver.phone:
+            send_mock_sms(
+                nearest.driver.phone,
+                f"SOS dispatch #{req.id}: proceed immediately to patient location ({lat:.5f}, {lng:.5f}).",
+                related_request=req,
+            )
+        admin_qs = User.objects.filter(Q(is_staff=True) | Q(is_superuser=True) | Q(role=UserRole.ADMIN)).distinct()
+        for admin in admin_qs:
+            if getattr(admin, "phone", ""):
+                send_mock_sms(
+                    admin.phone,
+                    f"SOS #{req.id} assigned to {nearest.vehicle_code} ({nearest_km:.2f} km away).",
+                    related_request=req,
+                )
+
+        return Response(
+            {
+                "request_id": req.id,
+                "type": "SOS",
+                "severity": "HIGH",
+                "status": req.status,
+                "patient_location": {"latitude": lat, "longitude": lng},
+                "assigned_ambulance": {
+                    "id": nearest.id,
+                    "vehicle_code": nearest.vehicle_code,
+                    "latitude": nearest.current_latitude,
+                    "longitude": nearest.current_longitude,
+                    "distance_km": round(nearest_km, 3),
+                },
+                "nearest_hospital": HospitalSerializer(req.suggested_hospital).data
+                if req.suggested_hospital
+                else None,
+                "route_to_patient": {
+                    "distance_km": round(route_to_patient["distance_km"], 3) if route_to_patient else None,
+                    "eta_seconds": int(route_to_patient["duration_sec"] * tf) if route_to_patient else None,
+                    "traffic_factor": round(tf, 3),
+                    "geometry": route_to_patient.get("geometry") if route_to_patient else None,
+                    "source": "osrm",
+                },
+                "notifications": "Simulated SMS notifications sent to assigned driver/admin/patient.",
+            },
+            status=201,
+        )
 
 
 class DemoAnchorNearMeView(APIView):
