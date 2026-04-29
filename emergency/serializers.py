@@ -21,6 +21,7 @@ class EmergencyRequestSerializer(serializers.ModelSerializer):
             "longitude",
             "location_description",
             "symptoms",
+            "emergency_type",
             "severity_level",
             "priority_score",
             "severity_explanation",
