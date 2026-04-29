@@ -182,6 +182,17 @@
     </div>
   </main>
 
+  <button
+    type="button"
+    id="btnSOSGlobal"
+    class="btn btn-danger rounded-pill shadow-lg position-fixed d-flex align-items-center gap-2 px-4 py-3"
+    style="right: 18px; bottom: 18px; z-index: 1080; font-weight: 700;"
+    title="One-tap SOS"
+  >
+    <i class="bi bi-broadcast-pin"></i>
+    SOS
+  </button>
+
   <footer class="py-5">
     <div class="container text-center">
       <div class="d-flex justify-content-center gap-4 mb-4">
@@ -203,6 +214,7 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="{% static 'js/theme.js' %}"></script>
   <script src="{% static 'js/api.js' %}"></script>
+  <script src="{% static 'js/home-sos.js' %}"></script>
   
   <script>
     // Logic for icon swapping on theme toggle
