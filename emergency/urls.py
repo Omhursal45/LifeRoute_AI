@@ -8,9 +8,11 @@ from .views import (
     EmergencyRequestListCreateView,
     OptimizeRouteView,
     PatientLiveTrackingView,
+    SOSOneTapView,
 )
 
 urlpatterns = [
+    path("sos/one-tap/", SOSOneTapView.as_view(), name="sos-one-tap"),
     path("patient/live-tracking/", PatientLiveTrackingView.as_view(), name="patient-live-tracking"),
     path("demo/anchor-near-me/", DemoAnchorNearMeView.as_view(), name="demo-anchor-near-me"),
     path("routing/driver-navigate/", DriverNavigateView.as_view(), name="driver-navigate"),
