@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load i18n %}
+{% load i18n static %}
 
 {% block title %}{% trans "Home" %} — LifeRoute AI{% endblock %}
 
@@ -28,9 +28,20 @@
         <a class="btn btn-danger btn-lg px-5 py-3 rounded-4 shadow-danger-hover d-flex align-items-center justify-content-center gap-2 fw-bold transition-all" href="{% url 'emergency' %}">
           <i class="bi bi-megaphone-fill"></i> {% trans "Request Ambulance" %}
         </a>
+        <button type="button" class="btn btn-danger btn-lg px-5 py-3 rounded-4 d-flex align-items-center justify-content-center gap-2 fw-bold transition-all" id="btnSOSOneTap">
+          <i class="bi bi-broadcast-pin"></i> {% trans "ONE-TAP SOS" %}
+        </button>
         <a class="btn btn-outline-dark btn-lg px-5 py-3 rounded-4 d-flex align-items-center justify-content-center gap-2 fw-bold transition-all" href="{% url 'dashboard' %}">
           <i class="bi bi-grid-1x2-fill"></i> {% trans "Live Dashboard" %}
         </a>
+      </div>
+      <div id="sosMessage" class="alert d-none mt-3" role="alert"></div>
+      <div id="sosMapWrap" class="card shadow-sm border-0 mt-3 d-none">
+        <div class="card-body">
+          <h6 class="fw-bold mb-2">{% trans "SOS Live View" %}</h6>
+          <div class="small text-muted mb-2" id="sosMeta"></div>
+          <div id="sosMap" style="height: 300px; border-radius: 14px;"></div>
+        </div>
       </div>
 
       <div class="mt-5 d-flex align-items-center gap-4 text-muted">
@@ -161,3 +172,5 @@
   .animate-fade-in { animation: fadeIn 1s forwards; }
 </style>
 {% endblock %}
+
+{% block extra_js %}{% endblock %}
