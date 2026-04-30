@@ -2,6 +2,13 @@ from django.conf import settings
 from django.db import models
 
 
+class AmbulanceStatus(models.TextChoices):
+    AVAILABLE = "available", "Available"
+    ASSIGNED = "assigned", "Assigned"
+    EN_ROUTE = "en_route", "En Route"
+    OFFLINE = "offline", "Offline"
+
+
 class Ambulance(models.Model):
     vehicle_code = models.CharField(max_length=50, unique=True)
     driver = models.ForeignKey(
@@ -14,6 +21,11 @@ class Ambulance(models.Model):
     current_latitude = models.FloatField()
     current_longitude = models.FloatField()
     is_active = models.BooleanField(default=True)
+    status = models.CharField(
+        max_length=20,
+        choices=AmbulanceStatus.choices,
+        default=AmbulanceStatus.AVAILABLE,
+    )
     last_updated = models.DateTimeField(auto_now=True)
 
     class Meta:
