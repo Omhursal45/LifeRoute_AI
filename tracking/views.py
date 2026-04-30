@@ -5,7 +5,7 @@ from rest_framework.views import APIView
 from accounts.models import UserRole
 from accounts.permissions import IsAdminRole
 
-from .models import Ambulance
+from .models import Ambulance, AmbulanceStatus
 from .serializers import AmbulanceLocationUpdateSerializer, AmbulanceSerializer
 
 
@@ -48,7 +48,9 @@ class AmbulanceLocationUpdateView(APIView):
         ser.is_valid(raise_exception=True)
         amb.current_latitude = ser.validated_data["latitude"]
         amb.current_longitude = ser.validated_data["longitude"]
-        amb.save(update_fields=["current_latitude", "current_longitude", "last_updated"])
+        if amb.status == AmbulanceStatus.ASSIGNED:
+            amb.status = AmbulanceStatus.EN_ROUTE
+        amb.save(update_fields=["current_latitude", "current_longitude", "status", "last_updated"])
         return Response(AmbulanceSerializer(amb).data)
 
 
