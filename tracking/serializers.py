@@ -19,6 +19,7 @@ class AmbulanceSerializer(serializers.ModelSerializer):
             "current_latitude",
             "current_longitude",
             "is_active",
+            "status",
             "last_updated",
         )
         read_only_fields = ("id", "last_updated", "driver_username")
