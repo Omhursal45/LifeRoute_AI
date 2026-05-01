@@ -12,7 +12,7 @@ from accounts.models import UserRole
 from accounts.permissions import IsAdminRole
 from hospitals.models import Hospital
 from hospitals.serializers import HospitalSerializer
-from tracking.models import Ambulance
+from tracking.models import Ambulance, AmbulanceStatus
 
 from .models import EmergencyRequest, EmergencyStatus, EmergencyType
 from .serializers import (
@@ -342,16 +342,9 @@ class SOSOneTapView(APIView):
                 status=409,
             )
 
-        # Avoid conflicts under multiple simultaneous SOS requests by locking ambulances.
-        open_assigned_amb_ids = EmergencyRequest.objects.filter(
-            status__in=[EmergencyStatus.ASSIGNED, EmergencyStatus.EN_ROUTE],
-            assigned_ambulance__isnull=False,
-        ).values_list("assigned_ambulance_id", flat=True)
-
         candidates = (
             Ambulance.objects.select_for_update()
-            .filter(is_active=True, status="available")
-            .exclude(id__in=open_assigned_amb_ids)
+            .filter(is_active=True, status=AmbulanceStatus.AVAILABLE)
         )
         if not candidates.exists():
             return Response(
