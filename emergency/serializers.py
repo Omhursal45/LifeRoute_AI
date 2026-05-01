@@ -1,10 +1,12 @@
 import json
 
 from rest_framework import serializers
+from django.db import transaction
 
 from .models import EmergencyRequest, EmergencyStatus
 from .services import pick_best_hospital_route, predict_severity_and_priority, nearest_hospitals
 from .sms_mock import send_mock_sms
+from tracking.models import AmbulanceStatus
 
 
 class EmergencyRequestSerializer(serializers.ModelSerializer):
@@ -106,6 +108,79 @@ class EmergencyRequestUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = EmergencyRequest
         fields = ("status", "assigned_ambulance")
+
+    def validate(self, attrs):
+        inst = self.instance
+        new_amb = attrs.get("assigned_ambulance", inst.assigned_ambulance if inst else None)
+        new_status = attrs.get("status", inst.status if inst else EmergencyStatus.PENDING)
+
+        if new_status in (EmergencyStatus.ASSIGNED, EmergencyStatus.EN_ROUTE) and not new_amb:
+            raise serializers.ValidationError(
+                {"assigned_ambulance": "Assigned/En Route status requires an ambulance."}
+            )
+
+        if new_amb and not new_amb.is_active:
+            raise serializers.ValidationError({"assigned_ambulance": "Selected ambulance is not active."})
+
+        # Prevent assigning vehicles that are already busy on another active request.
+        if new_amb:
+            busy = (
+                EmergencyRequest.objects.filter(
+                    assigned_ambulance=new_amb,
+                    status__in=[EmergencyStatus.ASSIGNED, EmergencyStatus.EN_ROUTE],
+                )
+                .exclude(pk=inst.pk if inst else None)
+                .exists()
+            )
+            if busy:
+                raise serializers.ValidationError(
+                    {"assigned_ambulance": "This ambulance is already assigned to another active request."}
+                )
+        return attrs
+
+    @transaction.atomic
+    def update(self, instance, validated_data):
+        old_amb = instance.assigned_ambulance
+        old_status = instance.status
+
+        new_amb = validated_data.get("assigned_ambulance", old_amb)
+        new_status = validated_data.get("status", old_status)
+
+        instance.assigned_ambulance = new_amb
+        instance.status = new_status
+        instance.save()
+
+        # If ambulance changed, release old one when no active jobs remain.
+        if old_amb and old_amb != new_amb:
+            still_busy = EmergencyRequest.objects.filter(
+                assigned_ambulance=old_amb,
+                status__in=[EmergencyStatus.ASSIGNED, EmergencyStatus.EN_ROUTE],
+            ).exists()
+            if not still_busy and old_amb.status != AmbulanceStatus.OFFLINE:
+                old_amb.status = AmbulanceStatus.AVAILABLE
+                old_amb.save(update_fields=["status", "last_updated"])
+
+        # Sync new ambulance status with request status.
+        if new_amb:
+            if new_status == EmergencyStatus.ASSIGNED:
+                target = AmbulanceStatus.ASSIGNED
+            elif new_status == EmergencyStatus.EN_ROUTE:
+                target = AmbulanceStatus.EN_ROUTE
+            elif new_status in (EmergencyStatus.COMPLETED, EmergencyStatus.CANCELLED):
+                target = AmbulanceStatus.AVAILABLE
+            else:
+                target = new_amb.status
+            if target != new_amb.status:
+                new_amb.status = target
+                new_amb.save(update_fields=["status", "last_updated"])
+
+        # Completed/cancelled should free ambulance for next SOS immediately.
+        if old_amb and not new_amb and new_status in (EmergencyStatus.COMPLETED, EmergencyStatus.CANCELLED):
+            if old_amb.status != AmbulanceStatus.OFFLINE:
+                old_amb.status = AmbulanceStatus.AVAILABLE
+                old_amb.save(update_fields=["status", "last_updated"])
+
+        return instance
 
 
 class DemoAnchorSerializer(serializers.Serializer):
