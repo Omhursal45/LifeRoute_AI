@@ -57,7 +57,7 @@
       return { ok: false, error: msg };
     }
     try {
-      sessionStorage.setItem(SESSION_ANCHOR_KEY, '1');
+      sessionStorage.setItem(SESSION_ANCHOR_KEY, '2');
     } catch (e) {
       /* ignore */
     }
