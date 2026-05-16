@@ -24,6 +24,7 @@ CRITICAL_PATTERNS = [
     r"\bunconscious\b",
     r"\bsevere bleeding\b",
     r"\bunresponsive\b",
+    r"\bseizure\b",
 ]
 HIGH_PATTERNS = [
     r"\bchest pain\b",
